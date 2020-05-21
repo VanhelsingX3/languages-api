@@ -37,7 +37,7 @@ export class CategoryService extends CategoryHelpers{
 
     public getAllWLanguage(req:Request, res:Response){
 
-        Category.aggregate([{
+       let result = Category.aggregate([{
             "$lookup":{
                 from: "languages",
                 localField:"_id",
@@ -54,6 +54,20 @@ export class CategoryService extends CategoryHelpers{
 
     }
 
+/*Método para obtener categoría seleccionada*/
+    public async getLanguageSpecifics(req: Request, res: Response){
+
+        const language_service: LanguageService = new LanguageService();
+        const languages:any = await language_service.GetLanguage({category: req.params.id});
+        const current_cat:any = await super.GetCategory({_id:req.params.id});
+
+        if( languages.length > 0 ){
+            res.status(200).json({successed:true, category:current_cat, filter:languages});
+        }else{
+            res.status(204).json({successed:false})
+        }
+    }
+//-------
     public async NewOne(req: Request, res: Response){        
         const c = new Category(req.body);
         const old_cat:any = await super.GetCategory({name:c.name});
